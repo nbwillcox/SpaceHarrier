@@ -28,7 +28,11 @@
   M.pause = function () { if (M.mode !== 'play') return; M.mode = 'pause'; I.clear(); if (G.audio) G.audio.suspend(); if (G.ui) G.ui.show('pause'); };
   M.resume = function () { if (M.mode !== 'pause') return; M.mode = 'play'; I.clear(); if (G.audio) G.audio.resumeAll(); if (G.ui) G.ui.hideAll(); };
   M.quit = function () { if (G.audio) { G.audio.resumeAll(); G.audio.music('title'); } M.startDemo(); if (G.ui) G.ui.show('title'); };
-  M.gameOver = function (g) { M.mode = 'over'; if (G.ui) G.ui.showGameOver(g); };
+  M.gameOver = function (g) {
+    M.mode = 'over';
+    if (g.mode === 'endless' && G.progress && g.stage > G.progress.endlessBest) { G.progress.endlessBest = g.stage; G.progress.save(); }
+    if (G.ui) G.ui.showGameOver(g);
+  };
   M.ending = function (g) {
     M.mode = 'over'; if (G.audio) G.audio.music('ending');
     if (g.mode === 'bossrush' && G.progress) { const t = Math.round(g.rushT); if (!G.progress.rushBest || t < G.progress.rushBest) { G.progress.rushBest = t; G.progress.save(); } }

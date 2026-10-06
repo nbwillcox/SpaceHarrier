@@ -11,7 +11,7 @@
 
   /* a boss part: a foe with an offset from the boss anchor */
   function part(g, b, o) {
-    const hp = Math.max(1, Math.round(o.hp * g.diff.hp * (g.mode === 'endless' ? 1 + (g.stage - 1) * 0.06 : 1)));
+    const hp = Math.max(1, Math.round(o.hp * 1.2 * g.diff.hp * (g.mode === 'endless' ? 1 + (g.stage - 1) * 0.06 : 1)));
     const f = Object.assign({ type: -1, boss: true, bossRef: b, x: b.x, y: b.y, z: b.z, ox: 0, oy: 0, oz: 0, rw: 20, rh: 20, rd: 36, hp, maxhp: hp, pts: 600, t: 0, ph: 0, hit: 0, dead: false, lockable: true, state: 'in', carry: null, noShadow: true }, o);
     f.hp = hp; f.maxhp = hp;
     f.update = (gg, dt) => { f.t += 0; follow(f, b); if (f.tick) f.tick(gg, dt, b); if (f.contact && !f.dead) touch(gg, f); };
@@ -38,7 +38,7 @@
   }
   const shotV = (g, x, y, z, vx, vy, vz, kind, r) => g.eshots.push({ kind: kind || 'orb', x, y, z, vx, vy, vz, r: r || (kind === 'big' ? 8 : 4), dead: false, t: 0 });
   const fan = (g, src, n, spread, kind, sp) => {
-    const P = g.P, base = Math.atan2(P.x - src.x, 1), s = (g.speed + 200 * g.diff.shots) * (sp || 0.85), t = Math.max(0.3, src.z / s);
+    const P = g.P, base = Math.atan2(P.x - src.x, 1), s = (g.speed + 200 * g.diff.shots * 1.3) * (sp || 0.85), t = Math.max(0.3, src.z / s);
     for (let i = 0; i < n; i++) { const a = (i - (n - 1) / 2) * spread; shotV(g, src.x, src.y, src.z, (P.x - src.x) / t + a * 140, (P.y - src.y) / t + a * 30 * 0, -s, kind); }
   };
   const ring = (g, src, n, kind, spd, a0) => { const s = (g.speed + 160) * 0.8; for (let i = 0; i < n; i++) { const a = (a0 || 0) + i / n * 6.2832; shotV(g, src.x, src.y, src.z, Math.cos(a) * spd, Math.sin(a) * spd * 0.7, -s, kind); } };
@@ -67,7 +67,7 @@
       const tx = Math.sin(b.u) * 105 * mag, ty = 56 + Math.sin(b.u * 1.4 + 1) * 26, tz = 350 + Math.sin(b.u * 0.8) * 100;
       b.hx += (tx - b.hx) * Math.min(1, 4 * dt); b.hy += (ty - b.hy) * Math.min(1, 4 * dt); b.hz += (tz - b.hz) * Math.min(1, 3 * dt);
       if (b.chargeT <= 0) { b.chargeT = rage ? 7 : 10; b.charge = 1.7; snd('roar'); g.banner('INCOMING!', 1, 'small'); }
-      if (b.atk <= 0 && !b.head.dead) { b.atk = (rage ? 0.95 : 1.4) / g.diff.shots; fan(g, { x: b.hx, y: b.hy, z: b.hz }, rage ? 5 : 3, 0.5, b.k === 3 ? 'fire' : 'orb'); snd('eshot'); }
+      if (b.atk <= 0 && !b.head.dead) { b.atk = (rage ? 0.95 : 1.4) / g.diff.shots * 1.3; fan(g, { x: b.hx, y: b.hy, z: b.hz }, rage ? 5 : 3, 0.5, b.k === 3 ? 'fire' : 'orb'); snd('eshot'); }
       if (b.ringT <= 0 && !b.head.dead) { b.ringT = rage ? 4 : 6.5; ring(g, { x: b.hx, y: b.hy, z: b.hz }, rage ? 14 : 10, b.k === 3 ? 'fire' : 'big', 55, rnd(0, 6)); snd('boom'); }
     }
     b.hist.unshift({ x: b.hx, y: b.hy, z: b.hz }); if (b.hist.length > 110) b.hist.pop();
@@ -79,7 +79,7 @@
   INIT[1] = (g, b) => {
     b.sp = BA.build(1, hue(g), false); b.spR = BA.build(1, hue(g), true); b.atk = 2.2; b.volT = 3; b.curT = 8; b.baseZ = 380;
     deco(g, b, { spr: 'body', rw: 70, rh: 66, oz: 30, oy: -4, rd: 20 });
-    const mk = (side) => part(g, b, { name: 'arm', spr: 'arm', flip: side > 0, ox: side * 92, oy: -8, oz: -14, rw: 28, rh: 40, hp: 26, pts: 1500, side, tick(gg, dt) { this.fireT = (this.fireT || 1 + (side > 0 ? 0.8 : 0)) - dt; if (this.fireT <= 0 && !this.dead) { this.fireT = 1.7 / gg.diff.shots; fan(gg, this, 3, 0.45, 'orb'); snd('eshot'); } } });
+    const mk = (side) => part(g, b, { name: 'arm', spr: 'arm', flip: side > 0, ox: side * 92, oy: -8, oz: -14, rw: 28, rh: 40, hp: 26, pts: 1500, side, tick(gg, dt) { this.fireT = (this.fireT || 1 + (side > 0 ? 0.8 : 0)) - dt; if (this.fireT <= 0 && !this.dead) { this.fireT = 1.7 / gg.diff.shots * 1.3; fan(gg, this, 3, 0.45, 'orb'); snd('eshot'); } } });
     b.armL = mk(-1); b.armR = mk(1);
     b.coreP = part(g, b, { name: 'core', spr: 'core', ox: 0, oy: 8, oz: -10, rw: 22, rh: 22, hp: 46, core: true, pts: 7000, invuln: true });
   };
@@ -88,7 +88,7 @@
     b.x = Math.sin(b.t * 0.55 * sp) * 70; b.y = 66 + Math.sin(b.t * 1.2) * 6;
     const open = b.armL.dead && b.armR.dead; b.coreP.invuln = !open && !b.entering;
     if (open && !b.opened) { b.opened = true; g.banner('CORE EXPOSED', 1.4, 'small'); snd('boss'); }
-    if (open && b.atk <= 0 && !b.coreP.dead) { b.atk = 1.1 / g.diff.shots; fan(g, b.coreP, 5, 0.4, 'big', 0.75); snd('eshot'); } else if (!open) b.atk = Math.max(b.atk, 0.1);
+    if (open && b.atk <= 0 && !b.coreP.dead) { b.atk = 1.1 / g.diff.shots * 1.3; fan(g, b.coreP, 5, 0.4, 'big', 0.75); snd('eshot'); } else if (!open) b.atk = Math.max(b.atk, 0.1);
     if (b.curT <= 0) { b.curT = open ? 5.5 : 8.5; curtain(g, 400, clamp(g.P.x + rnd(-40, 40), -g.xb() + 30, g.xb() - 30), 28); g.banner('DODGE THE GAP!', 1.1, 'small'); snd('boss'); }
   };
 
@@ -110,7 +110,7 @@
     const sp = (b.rage ? 1.3 : 1) * g.diff.foe; b.atk -= dt; b.slamT -= dt;
     b.x = Math.sin(b.t * 0.45 * sp) * 55; b.y = 62 + Math.sin(b.t * 1.1) * 5;
     if (b.slamT <= 0 && !b.slammer) { const c = [b.fistL, b.fistR].filter((f) => !f.dead); if (c.length) { b.slammer = U.pick(c); b.slammer.mode = 'aim'; b.slammer.mt = 0; b.slamT = (b.fistL.dead && b.fistR.dead ? 2.4 : 3.6) / sp; snd('warning'); } else b.slamT = 2.4; }
-    if (b.atk <= 0 && !b.headP.dead) { b.atk = (b.rage ? 1.3 : 2) / g.diff.shots; fan(g, b.headP, 5, 0.38, 'ice'); snd('eshot'); if (b.rage) ring(g, b.headP, 8, 'ice', 45, b.t); }
+    if (b.atk <= 0 && !b.headP.dead) { b.atk = (b.rage ? 1.3 : 2) / g.diff.shots * 1.3; fan(g, b.headP, 5, 0.38, 'ice'); snd('eshot'); if (b.rage) ring(g, b.headP, 8, 'ice', 45, b.t); }
   };
 
   /* ---------- 4: the Dreadnought (turrets, engines, an armoured bridge) ---------- */
@@ -118,7 +118,7 @@
     b.sp = BA.build(4, hue(g), false); b.spR = BA.build(4, hue(g), true); b.baseZ = 440; b.mineT = 6; b.canT = 9;
     deco(g, b, { spr: 'hull', rw: 180, rh: 70, oz: 40, oy: 0, rd: 24 });
     b.turrets = [];
-    [-125, -45, 45, 125].forEach((ox, i) => b.turrets.push(part(g, b, { name: 'turret', spr: 'turret', ox, oy: -6, oz: -10, rw: 22, rh: 22, hp: 14, pts: 900, tick(gg, dt) { this.fireT = (this.fireT === undefined ? 0.8 + i * 0.45 : this.fireT) - dt; if (this.fireT <= 0 && !this.dead) { this.fireT = 2.2 / gg.diff.shots; fan(gg, this, 2, 0.3, 'orb'); snd('eshot'); } } })));
+    [-125, -45, 45, 125].forEach((ox, i) => b.turrets.push(part(g, b, { name: 'turret', spr: 'turret', ox, oy: -6, oz: -10, rw: 22, rh: 22, hp: 14, pts: 900, tick(gg, dt) { this.fireT = (this.fireT === undefined ? 0.8 + i * 0.45 : this.fireT) - dt; if (this.fireT <= 0 && !this.dead) { this.fireT = 2.2 / gg.diff.shots * 1.3; fan(gg, this, 2, 0.3, 'orb'); snd('eshot'); } } })));
     b.engines = [-150, 150].map((ox) => part(g, b, { name: 'engine', spr: 'engine', ox, oy: 34, oz: -6, rw: 28, rh: 28, hp: 20, pts: 1200 }));
     b.bridge = part(g, b, { name: 'bridge', spr: 'bridge', ox: 0, oy: -22, oz: -22, rw: 40, rh: 34, hp: 64, core: true, pts: 8000, armor: () => (b.turrets.every((t) => t.dead) ? 1 : 0.3) });
   };
@@ -136,7 +136,7 @@
     b.orbs = [];
     for (let i = 0; i < 6; i++) b.orbs.push(part(g, b, { name: 'orbiter', rw: 18, rh: 18, hp: 10, pts: 800, ang: i / 6 * 6.2832, noSpr: true, eyeSmall: true, tick(gg, dt) {
       this.ang += dt * (b.phase >= 2 ? 1.5 : 1); this.ox = Math.cos(this.ang) * 105; this.oy = Math.sin(this.ang) * 70; this.oz = -Math.sin(this.ang) * 30;
-      this.fireT = (this.fireT === undefined ? i * 0.5 + 1 : this.fireT) - dt; if (this.fireT <= 0 && !this.dead) { this.fireT = 3 / gg.diff.shots; fan(gg, this, 1, 0, 'orb', 0.9); }
+      this.fireT = (this.fireT === undefined ? i * 0.5 + 1 : this.fireT) - dt; if (this.fireT <= 0 && !this.dead) { this.fireT = 3 / gg.diff.shots * 1.3; fan(gg, this, 1, 0, 'orb', 0.9); }
     } }));
     for (const o of b.orbs) o.draw = (ctx, gg, f, time) => { if (f.dead) return; Sc.proj(f.x, f.y, f.z); if (Sc.ps > 3) return; const sp = A.foe[6][b.rage ? 1 : 0][Math.floor((f.t + f.ph) * 6) & 1]; A.draw(ctx, f.hit > 0 ? A.flash(sp) : sp, Sc.px, Sc.py, Sc.ps * 1.4, false); };
     b.tents = [];

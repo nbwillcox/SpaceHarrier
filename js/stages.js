@@ -55,7 +55,9 @@
       let q = r() * wsum, pat = pool[0]; for (const p of pool) { q -= (wd.hue === 295 && p[0] === 'eyes' ? p[1] * 2 : p[1]); if (q <= 0) { pat = p; break; } }
       const name = pat[0], forced = k === 1 ? 'P' : k === 3 ? 'L' : null, carry = forced || (r() < 0.2 ? pickLetter() : null), seedP = Math.floor(r() * 1e6);
       events.push({ t, fn: (g) => { const rr = PX.rng(seedP), before = g.foes.length; PAT[name](g, rr, d); const added = g.foes.filter((f, i) => i >= before && f.type !== 5); if (carry && added.length) added[Math.floor(rr() * added.length)].carry = carry; } });
-      k++; t += (name === 'gate' || name === 'slit' ? 3.4 : name === 'astField' ? 3.6 : 2.5) - d * 0.9 + r() * 0.8;
+      k++;
+      if (d > 0.3 && r() < d * 0.5 && name !== 'gate' && name !== 'slit') { const alt = pool.filter((p) => ['gate', 'slit', 'astField', 'columnRow', 'pillarMaze'].indexOf(p[0]) < 0)[Math.floor(r() * 4) % 4], an = alt ? alt[0] : 'droneLine', sd = Math.floor(r() * 1e6); events.push({ t: t + 0.9, fn: (g) => { PAT[an](g, PX.rng(sd), d); } }); }
+      t += Math.max(1.5, (name === 'gate' || name === 'slit' ? 3.4 : name === 'astField' ? 3.6 : 2.5) - d * 1.3) + r() * 0.6;
     }
     return { speed: 380 + n * 13 + (o.mode === 'endless' ? 40 : 0), end: len + 5, boss, events, label: wd.name };
   };

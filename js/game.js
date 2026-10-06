@@ -30,7 +30,7 @@
   };
   Game.loadStage = function (n) {
     const W = G.worlds, wd = W.list[W.of(n)];
-    this.stage = n; this.wd = wd; this.stageT = 0; this.dist = 0; this.state = 'intro'; this.introT = 2.4; this.clearT = 0;
+    this.stage = n; this.d = Math.min(1.5, (n - 1) / 17); this.wd = wd; this.stageT = 0; this.dist = 0; this.state = 'intro'; this.introT = 2.4; this.clearT = 0;
     Sc.setWorld(wd, W.isBoss(n) && wd.kind === 'corridor');
     G.art.buildFoes(wd.foe); G.art.buildProps(wd);
     this.foes = []; this.eshots = []; this.pshots = []; this.missiles = []; this.items = []; this.parts = []; this.booms = []; this.floats = []; this.props = []; this.locks = []; this.volleyQ = [];
@@ -106,7 +106,8 @@
     this.props.push(p); return p;
   };
   Game.spawnShot = function (kind, x, y, z, tx, ty, o) {
-    const sp = (this.speed + 170 * this.diff.shots * 0.7 + 90) * (o && o.sp || 1), t = Math.max(0.2, z / sp);
+    const sp = (this.speed + 170 * this.diff.shots * 0.7 + 90 + this.d * 90) * (o && o.sp || 1), t = Math.max(0.2, z / sp), L = Math.min(0.9, (this.stage - 1) / 13) * (o && o.nolead ? 0 : 1);
+    tx = clamp(tx + this.P.vx * L * t, -this.xb(), this.xb()); ty = clamp(ty + this.P.vy * L * t, 4, this.yb());
     const s = Object.assign({ kind, x, y, z, vx: (tx - x) / t, vy: (ty - y) / t, vz: -sp, r: kind === 'big' ? 8 : 4, dead: false, t: 0 }, o || {});
     this.eshots.push(s); return s;
   };
@@ -118,18 +119,18 @@
       f.t += dt; if (f.hit > 0) f.hit -= dt;
       if (f.update) { f.update(this, dt); continue; }
       switch (f.type) {
-        case 0: f.vz = -(v * 0.3 + 300 * df); f.y = f.y0 + Math.sin(f.t * 3 + f.ph) * 6; if (!f.fired && f.z < f.fireZ) { f.fired = true; if (Math.random() < 0.8 * fs) this.fireAt(f); } break;
-        case 1: f.vz = -(v * 0.3 + 340 * df); f.x = f.x0 + Math.sin(f.t * 2.2 + f.ph) * 55; f.y = f.y0 + Math.cos(f.t * 1.7 + f.ph) * 16; if (!f.fired && f.z < f.fireZ) { f.fired = true; if (Math.random() < 0.9 * fs) { this.fireAt(f); f.burst = 0.2; } } if (f.burst > 0) { f.burst -= dt; if (f.burst <= 0 && !f.dead) this.fireAt(f); } break;
+        case 0: f.vz = -(v * 0.3 + 300 * df); f.y = f.y0 + Math.sin(f.t * 3 + f.ph) * 6; if (!f.fired && f.z < f.fireZ) { f.fired = true; if (Math.random() < 0.8 * fs) { this.fireAt(f); f.vol = (this.d > 0.45 ? 1 : 0) + (this.d > 0.9 ? 1 : 0); f.volT = 0.16; } } if (f.vol > 0) { f.volT -= dt; if (f.volT <= 0 && !f.dead) { f.vol--; f.volT = 0.16; this.fireAt(f); } } break;
+        case 1: f.vz = -(v * 0.3 + 340 * df); f.x = f.x0 + Math.sin(f.t * 2.2 + f.ph) * 55; f.y = f.y0 + Math.cos(f.t * 1.7 + f.ph) * 16; if (!f.fired && f.z < f.fireZ) { f.fired = true; if (Math.random() < 0.9 * fs) { this.fireAt(f); f.burst = 0.2; f.bn = 1 + (this.d > 0.6 ? 1 : 0); } } if (f.burst > 0) { f.burst -= dt; if (f.burst <= 0 && !f.dead) { this.fireAt(f); if (--f.bn > 0) f.burst = 0.2; } } break;
         case 2:
           if (f.state === 'in') { f.vz = -440; if (f.z <= f.holdZ) f.state = 'hold'; } else if (f.state === 'hold') {
             f.vz = 0; f.x = f.x0 + Math.sin(f.t * 0.8 + f.ph) * 70; f.y = clamp(f.y0 + Math.sin(f.t * 1.3 + f.ph) * 20, 14, this.yb()); f.holdT -= dt; f.fireT -= dt;
-            if (f.fireT <= 0) { f.fireT = 1.25 / fs; for (const d of [-14, 0, 14]) this.spawnShot('orb', f.x, f.y, f.z, P.x + d, P.y, { sp: 0.95 }); snd('eshot'); }
+            if (f.fireT <= 0) { f.fireT = 1.25 / fs; for (const d of this.d > 0.5 ? [-28, -14, 0, 14, 28] : [-14, 0, 14]) this.spawnShot('orb', f.x, f.y, f.z, P.x + d, P.y, { sp: 0.95 }); snd('eshot'); }
             if (f.holdT <= 0) f.state = 'out';
           } else f.vz = -(280 * df + 100);
           break;
         case 3: f.vz = -(v * 0.62); f.y = f.y0 + Math.sin(f.t * 1.6 + f.ph) * 8; f.x += Math.sin(f.t + f.ph) * 5 * dt; break;
         case 4: f.vz = -(v * 0.3 + 640 * df); if (f.z > 480) { f.x += clamp(P.x - f.x, -1, 1) * 120 * df * dt; f.y += clamp(P.y - f.y, -1, 1) * 90 * df * dt; } break;
-        case 5: f.vz = -v; f.y = f.rh; f.fireT -= dt; if (f.z < 1500 && f.z > 380 && f.fireT <= 0) { f.fireT = 1.7 / fs; this.fireAt(f); } break;
+        case 5: f.vz = -v; f.y = f.rh; f.fireT -= dt; if (f.z < 1500 && f.z > 380 && f.fireT <= 0) { f.fireT = 1.7 / fs; this.fireAt(f); if (this.d > 0.5) this.fireAt(f, 'orb', { sp: 1.12 }); } break;
         case 6: f.vz = -(v * 0.25 + 150 * df); f.x = f.x0 + Math.sin(f.t * 1.3 + f.ph) * 50; f.y = f.y0 + Math.sin(f.t * 1.9 + f.ph) * 14; f.fireT -= dt; if (f.z < 1500 && f.z > 300 && f.fireT <= 0) { f.fireT = 2.2 / fs; this.fireAt(f, 'big', { sp: 0.7 }); } break;
       }
       f.z += f.vz * dt; f.x += f.vx * dt; f.y += f.vy * dt;
