@@ -38,6 +38,9 @@ body.touch.tk-menu #touch, body.touch.tk-hide #touch, body.touch.rotate-needed #
 .tk-btn.lit { background: var(--tk-a); box-shadow: 0 0 22px var(--tk), inset 0 0 14px var(--tk-a); }
 .tk-btn.tk-small { border-width: 1.5px; box-shadow: none; opacity: calc(var(--op) * 0.7); letter-spacing: 0; }
 .tk-btn.tk-sq { border-radius: 14px; }
+body.tk-scr-menu #touch [data-when="play"], body:not(.tk-scr-menu) #touch [data-when="menu"] { display: none !important; }
+.tk-aimfire { overflow: visible; }
+.tk-aimfire .tk-knob { width: 34%; height: 34%; margin: -17% 0 0 -17%; }
 .tk-stick, .tk-rest { position: absolute; border-radius: 50%; pointer-events: none; width: calc(var(--k) * 112px); height: calc(var(--k) * 112px); margin: calc(var(--k) * -56px) 0 0 calc(var(--k) * -56px); border: 2px solid var(--tk); background: var(--tk-f); }
 .tk-stick { opacity: 0; box-shadow: 0 0 16px var(--tk-a); }
 .tk-stick.on { opacity: var(--op); }
@@ -67,3 +70,6 @@ body[data-orient="landscape"] #tk-rotate .ph { animation-name: tk-rot-l; }
   body.touch .thint { display: none; }
 }
 @media (max-width: 560px) { .panel { padding: 16px 16px; min-width: min(420px, 94vw); } .panel label { gap: 10px; } .panel input[type="range"] { width: 42vw; } .tk-set input[type="range"] { width: 42vw; } }
+
+/* pages with a footer link strip (SpaceTroid's dev links) lose it on touch */
+body.touch #links { display: none; }
