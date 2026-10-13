@@ -1,0 +1,69 @@
+/* ---- mobile shell (shared by every game; see js/mobile.js) ---- */
+:root { --sat: env(safe-area-inset-top, 0px); --sar: env(safe-area-inset-right, 0px); --sab: env(safe-area-inset-bottom, 0px); --sal: env(safe-area-inset-left, 0px); }
+html, body { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; -webkit-text-size-adjust: 100%; }
+body { height: 100vh; height: 100dvh; }
+canvas#game, canvas.game { touch-action: none; -webkit-touch-callout: none; }
+button, select, input, label, a { touch-action: manipulation; }
+
+/* menus: always scrollable, centred when they fit, never clipped when they don't */
+.screen { overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; touch-action: pan-y; justify-content: flex-start;
+  padding-top: max(16px, var(--sat)); padding-bottom: max(16px, var(--sab)); padding-left: max(16px, var(--sal)); padding-right: max(16px, var(--sar)); }
+.screen::before, .screen::after { content: ''; margin: auto; flex: none; }
+.screen > .credit { position: static; margin-top: 8px; }
+@media (max-width: 560px) { .menu { min-width: min(320px, 86vw); } .hint { max-width: 90vw; } }
+@media (max-height: 560px) { .screen { gap: 8px; } .screen h2 { font-size: clamp(24px, 6vh, 38px); margin: 0; } .logo .l1 { font-size: clamp(16px, 5vh, 30px) !important; } .logo .l2 { font-size: clamp(30px, 13vh, 66px) !important; } .logo .l3 { font-size: clamp(14px, 4.8vh, 28px) !important; } }
+
+/* the touch hint replaces the keyboard hint */
+.thint { display: none; }
+body.touch .hint:not(.thint) { display: none; }
+body.touch .thint { display: block; }
+body.touch #goName { font-size: 36px; }
+
+/* settings group */
+.tk-set { display: flex; flex-direction: column; gap: 14px; margin-top: 4px; padding-top: 12px; border-top: 1px solid rgba(143, 216, 255, 0.25); }
+.tk-set h3 { margin: 0; font-size: 12px; letter-spacing: 0.22em; color: #8fd8ff; font-weight: 800; }
+.tk-set select { font: 700 14px/1 inherit; font-family: inherit; color: #fff; background: rgba(10, 20, 50, 0.85); border: 1.5px solid rgba(143, 216, 255, 0.5); border-radius: 4px; padding: 10px 12px; min-height: 40px; }
+.tk-set input[type="range"] { width: 160px; }
+.tk-set input[type="checkbox"] { width: 22px; height: 22px; }
+
+/* the on-screen controls */
+#touch { position: fixed; inset: 0; z-index: 20; display: none; pointer-events: none; touch-action: none; -webkit-user-select: none; user-select: none; --k: 1; --op: 0.75; --tk: #37e6ff; --tk-a: rgba(55, 230, 255, 0.5); --tk-f: rgba(55, 230, 255, 0.16); }
+body.touch #touch { display: block; }
+body.touch.tk-menu #touch, body.touch.tk-hide #touch, body.touch.rotate-needed #touch { display: none; }
+.tk-zone { position: absolute; pointer-events: auto; touch-action: none; }
+.tk-btn { position: absolute; pointer-events: auto; touch-action: none; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 2px solid var(--tk); background: var(--tk-f);
+  color: #fff; font-family: var(--font, system-ui, sans-serif); font-weight: 800; letter-spacing: 0.06em; text-shadow: 0 0 8px var(--tk); box-shadow: 0 0 16px var(--tk-a), inset 0 0 14px var(--tk-f); opacity: var(--op);
+  -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; transition: transform 0.06s, background 0.06s; }
+.tk-btn.on { background: var(--tk-a); transform: scale(0.93); }
+.tk-btn.lit { background: var(--tk-a); box-shadow: 0 0 22px var(--tk), inset 0 0 14px var(--tk-a); }
+.tk-btn.tk-small { border-width: 1.5px; box-shadow: none; opacity: calc(var(--op) * 0.7); letter-spacing: 0; }
+.tk-btn.tk-sq { border-radius: 14px; }
+.tk-stick, .tk-rest { position: absolute; border-radius: 50%; pointer-events: none; width: calc(var(--k) * 112px); height: calc(var(--k) * 112px); margin: calc(var(--k) * -56px) 0 0 calc(var(--k) * -56px); border: 2px solid var(--tk); background: var(--tk-f); }
+.tk-stick { opacity: 0; box-shadow: 0 0 16px var(--tk-a); }
+.tk-stick.on { opacity: var(--op); }
+.tk-knob { position: absolute; left: 50%; top: 50%; width: 46%; height: 46%; margin: -23% 0 0 -23%; border-radius: 50%; background: var(--tk-a); border: 2px solid rgba(255, 255, 255, 0.55); }
+.tk-rest { --r: 56px; width: calc(var(--r) * 2); height: calc(var(--r) * 2); margin: calc(var(--r) * -1) 0 0 calc(var(--r) * -1); opacity: calc(var(--op) * 0.32); border-style: dashed; }
+.tk-rest.off { opacity: 0; }
+
+/* rotate prompt */
+#tk-rotate { position: fixed; inset: 0; z-index: 200; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 24px; text-align: center; color: #cfe8ff; background: rgba(3, 4, 13, 0.97); font-family: var(--font, system-ui, sans-serif); }
+body.rotate-needed #tk-rotate { display: flex; }
+#tk-rotate .big { margin: 6px 0 0; font-weight: 900; letter-spacing: 0.2em; font-size: 20px; color: #fff; }
+#tk-rotate .sm { margin: 0; font-size: 14px; color: #8fa6c8; }
+#tk-rotate button { margin-top: 10px; }
+#tk-rotate .ph { transform-origin: 32px 28px; animation: tk-rot 2.4s ease-in-out infinite; }
+body[data-orient="landscape"] #tk-rotate .ph { animation-name: tk-rot-l; }
+@keyframes tk-rot { 0%, 20% { transform: rotate(-90deg); } 60%, 100% { transform: rotate(0deg); } }
+@keyframes tk-rot-l { 0%, 20% { transform: rotate(0deg); } 60%, 100% { transform: rotate(-90deg); } }
+@media (prefers-reduced-motion: reduce) { #tk-rotate .ph { animation: none; } }
+
+/* short landscape screens (a phone on its side): two columns instead of a long scroll */
+@media (max-height: 560px) and (min-width: 600px) {
+  .panel { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 32px; padding: 14px 22px; min-width: min(700px, 92vw); }
+  .tk-set { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 32px; margin-top: 0; }
+  .tk-set h3 { grid-column: 1 / -1; }
+  .scorelist { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(5, auto); grid-auto-flow: column; column-gap: 32px; min-width: min(660px, 92vw); padding: 8px 20px; }
+  .scorelist li { padding: 3px 0; font-size: 15px; }
+  body.touch .thint { display: none; }
+}
+@media (max-width: 560px) { .panel { padding: 16px 16px; min-width: min(420px, 94vw); } .panel label { gap: 10px; } .panel input[type="range"] { width: 42vw; } .tk-set input[type="range"] { width: 42vw; } }

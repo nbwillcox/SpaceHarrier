@@ -16,13 +16,14 @@
   window.addEventListener('keyup', (e) => { const m = MAP[e.code]; if (m) I.k[m] = false; });
   window.addEventListener('blur', () => { I.k = {}; I.lmb = false; });
   const toView = (e) => { const v = I.view; I.mx = Math.max(0, Math.min(v.iw, (e.clientX - v.l) / v.w * v.iw)); I.my = Math.max(0, Math.min(v.ih, (e.clientY - v.t) / v.h * v.ih)); };
-  window.addEventListener('pointermove', (e) => { toView(e); I.mouseMoved = true; I.padAim = false; });
+  window.addEventListener('pointermove', (e) => { if (e.pointerType === 'touch') return; toView(e); I.mouseMoved = true; I.padAim = false; });
   window.addEventListener('pointerdown', (e) => {
-    if (!e.target || e.target.id !== 'game') return;
+    if (!e.target || e.target.id !== 'game' || e.pointerType === 'touch') return;
     toView(e); I.mouseMoved = true; I.padAim = false; I._any = true;
     if (e.button === 0) { I.lmb = true; I.lmbT = 0; } else if (e.button === 2) I.k.f = true; else if (e.button === 1) { I._bomb = true; e.preventDefault(); }
   });
   window.addEventListener('pointerup', (e) => { if (e.button === 0 && I.lmb) { I.lmb = false; if (I.lmbT < 0.17) I._tap = true; else I._vol = true; I.lmbT = 0; } else if (e.button === 2) I.k.f = false; });
+  window.addEventListener('pointercancel', () => { I.lmb = false; I.lmbT = 0; I.k.f = false; });
   window.addEventListener('contextmenu', (e) => { if (e.target && e.target.id === 'game') e.preventDefault(); });
   I.takeTap = () => { const b = I._tap; I._tap = false; return b; };
   I.takeVolley = () => { const b = I._vol; I._vol = false; return b; };
