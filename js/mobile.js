@@ -278,7 +278,9 @@
   const probe = D.createElement('div'); probe.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)';
   function readSafe() { const c = W.getComputedStyle(probe); TK.safe = { t: parseFloat(c.paddingTop) || 0, r: parseFloat(c.paddingRight) || 0, b: parseFloat(c.paddingBottom) || 0, l: parseFloat(c.paddingLeft) || 0 }; }
   TK.layout = function (view, gw, gh) {
-    if (!TK.on || CFG.orient === 'landscape' || CFG.bias === false) return;
+    if (!TK.on) return;
+    if (view.dpr > 1.25) view.dpr = 1.25;                                                  /* phone screens are dense: 1.25x is plenty and cuts the fill cost of the neon / bloom layers by about a third */
+    if (CFG.orient === 'landscape' || CFG.bias === false) return;
     readSafe();
     const free = view.h - gh * view.s;
     if (free > view.h * 0.2) view.oy = Math.min(view.oy, TK.safe.t + 6);                    /* tall phone: playfield to the top, the band underneath is for the thumb */

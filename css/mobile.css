@@ -73,3 +73,6 @@ body[data-orient="landscape"] #tk-rotate .ph { animation-name: tk-rot-l; }
 
 /* pages with a footer link strip (SpaceTroid's dev links) lose it on touch */
 body.touch #links { display: none; }
+
+/* backdrop blur is costly on phone GPUs and the panels are opaque enough without it */
+body.touch * { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
