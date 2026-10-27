@@ -23,6 +23,10 @@ Menus work with the arrow keys and `Enter`, the mouse, or a gamepad. On ultrawid
 
 Play in landscape. A floating stick on the left flies; touch and drag on the right to aim the crosshair (the cannon auto-fires while you touch). Switch **LOCK** on and the same gesture paints lock-ons that launch as a volley when you lift your finger; **BOMB** is a smart bomb. The pause button opens the menu. The on-screen controls appear on touch devices automatically; Settings has size, opacity and a left-handed layout. Use your browser's *Add to Home Screen* to install it as a full-screen app.
 
+### Controller
+
+Plug in a gamepad and it just works: the left stick flies, the right stick moves the crosshair, **A** fires, hold **RT / RB** to paint lock-ons (release for the volley), **B / X / Y** is the smart bomb, **Start** pauses. In menus the D-pad / left stick moves the highlight, **A** selects, **B** goes back and **Start** plays or resumes. **Settings -> Controller** has a dead-zone slider and lets you remap every button.
+
 ## Playing
 
 - **Modes:** Campaign (18 stages in 6 worlds, a boss at the end of every world), Boss Rush (all six bosses back to back, unlocked at stage 12 or after finishing the game) and Endless Run (a seeded run that gets harder every stage). Pick Easy, Normal or Hard.
