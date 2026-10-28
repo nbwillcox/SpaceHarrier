@@ -150,6 +150,12 @@
     focus = e;
     if (e) { e.classList.add('pad-focus'); try { e.focus({ preventScroll: true }); } catch (x) { /* ignore */ } e.scrollIntoView && e.scrollIntoView({ block: 'nearest' }); }
   }
+  function nativeFocus() {
+    const a = D.activeElement;
+    if (a && a.tagName === 'BUTTON' && visible(a) && a.closest('#ui')) return;
+    const l = items(screenEl()).filter((e) => e.tagName === 'BUTTON'), pr = l.find((e) => e.classList.contains('primary')) || l[0];
+    if (pr) setFocus(pr);
+  }
   function enterMenu() {
     PAD.menu = true; releaseAll();
   }
@@ -241,7 +247,7 @@
     if (Math.abs(p.axes[0] || 0) + Math.abs(p.axes[1] || 0) + Math.abs(p.axes[2] || 0) + Math.abs(p.axes[3] || 0) > 0.6) any = true;
     if (any) PAD.using = true;
     if (listening) { listen(p); }
-    else if (CFG.native) { /* the game reads the pad itself (through the wrapper below) */ }
+    else if (CFG.native) { if (st.on && menuOpen()) nativeFocus(); }                              /* the game reads the pad itself (through the wrapper below); we only make sure a button is highlighted so A works at once */
     else if (st.on) {
       const m = menuOpen();
       if (m !== PAD.menu) { if (m) enterMenu(); else leaveMenu(); }
